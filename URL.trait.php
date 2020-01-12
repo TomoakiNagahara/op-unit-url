@@ -136,10 +136,15 @@ trait OP_UNIT_URL
 	 * @param    string|array  $url
 	 * @return   integer       $ai
 	 */
-	static function Register($url)
+	static function Register($parsed)
 	{
 		//	...
-		$ai = self::Ai($url);
+		if( is_string($parsed) ){
+			$parsed = self::Parse($parsed);
+		};
+
+		//	Register Host, Path, Query, Form.
+		$ai = self::Ai($parsed);
 
 		//	...
 		$config = [];
