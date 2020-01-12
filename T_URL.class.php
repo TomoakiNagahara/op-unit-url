@@ -45,18 +45,23 @@ class T_URL
 	 *
 	 * @created  2019-06-14
 	 */
-	static function Ai($https, $host, $path, $query, $form)
+	static function Ai($scheme, $host, $path, $query, $form, $auth)
 	{
 		//	...
 		$config = [];
 		$config['table'] = self::table;
 		$config['field'] = 'ai';
 		$config['limit'] = 1;
-		$config['where'][] = " https = $https ";
-		$config['where'][] = " host  = $host  ";
-		$config['where'][] = " path  = $path  ";
-		$config['where'][] = " query = $query ";
-		$config['where'][] = " form  = $form  ";
+	//	$config['where']['scheme']= $scheme;
+		$config['where']['host' ] = $host ;
+		$config['where']['path' ] = $path ;
+		$config['where']['query'] = $query;
+		$config['where']['form' ] = $form ;
+
+		//	...
+		if( $auth ){
+			$config['where']['auth' ] = $auth ;
+		};
 
 		//	...
 		if( $record = self::DB()->Select($config) ){
@@ -64,7 +69,16 @@ class T_URL
 		};
 
 		//	...
-		$config['set'] = $config['where'];
+
+		//	...
+		$config['set'] = $config['where'] ;
+		$config['set']['scheme'] = $scheme;
+		$config['set']['auth' ]  = $auth  ;
+
+		//	...
+		$config['update']['auth'] = $auth ;
+
+		//	...
 		unset($config['where']);
 		unset($config['limit']);
 		unset($config['field']);
