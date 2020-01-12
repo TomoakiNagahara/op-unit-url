@@ -30,6 +30,15 @@ trait OP_UNIT_URL
 	 */
 	use OP_UNIT_URL_DB;
 
+	/** Selftest
+	 *
+	 */
+	static function Selftest()
+	{
+		static $_unit;
+		return $_unit ? $_unit : $_unit = new Selftest();
+	}
+
 	/** Host
 	 *
 	 */
