@@ -86,4 +86,75 @@ class TABLE
 		//	...
 		return self::DB()->Insert($config);
 	}
+
+	/** Get record by condition.
+	 *
+	 * @created  2019-09-06
+	 * @param    string      $table
+	 * @param    array       $condition
+	 * @return   array       $record
+	 */
+	static function _Get($table, $condition)
+	{
+		//	...
+		$limit = $condition['limit'] ?? 1;
+		$order = $condition['order'] ?? null;
+
+		//	...
+		unset($condition['limit']);
+		unset($condition['order']);
+
+		//	...
+		$config = [];
+		$config['table'] = $table;
+		$config['limit'] = $limit;
+		$config['where'] = $condition;
+		$config['order'] = $order;
+
+		//	...
+		return self::DB()->Select($config);
+	}
+
+	/** Update
+	 *
+	 * @created  2019-08-15
+	 * @param    string      $table
+	 * @param    integer     $ai
+	 * @param    array       $update
+	 * @return   integer     $number
+	 */
+	/*
+	static protected function _Update($table, $ai, $update)
+	{
+		//	...
+		$config = [];
+		$config['table'] = $table;
+		$config['limit'] = 1;
+		$config['where']['ai'] = $ai;
+		$config['set']   = $update;
+
+		//	...
+		return self::DB()->Update($config);
+	}
+	*/
+
+	/** Delete
+	 *
+	 * @created  2019-09-06
+	 * @param    integer     $ai
+	 * @return   boolean     $io
+	 */
+	static function _Delete($table, $ai)
+	{
+		//	...
+		$config = [];
+
+		//	...
+		$config['table'] = $table;
+		$config['limit'] = 1;
+		$config['where']['ai'] = $ai;
+
+		//	...
+		return self::DB()->Delete($config);
+	}
 }
