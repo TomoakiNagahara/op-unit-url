@@ -182,7 +182,7 @@ trait OP_UNIT_URL
 		return $ai;
 	}
 
-	/**
+	/** Update to http_status_code.
 	 *
 	 * @created  2019-06-14
 	 */
@@ -322,5 +322,23 @@ trait OP_UNIT_URL
 
 		//	...
 		return self::DB()->Update($config) ? true: false;
+	}
+
+	/** Delete record of URL by ai.
+	 *
+	 * @created  2019-09-10
+	 * @param    integer     $ai
+	 * @return   boolean     $io
+	 */
+	static function Delete($ai)
+	{
+		//	...
+		$config = [];
+		$config['table'] = 't_url';
+		$config['limit'] =  1;
+		$config['where'][] = "ai = $ai";
+
+		//	...
+		return self::DB()->Delete($config) ? true: false;
 	}
 }
