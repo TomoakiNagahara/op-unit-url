@@ -82,6 +82,17 @@ trait OP_UNIT_URL
 		return $_form ? $_form: $_form = new T_FORM();
 	}
 
+	/** Auth
+	 *
+	 * @created  2019-08-15
+	 * @return   T_AUTH
+	 */
+	static function Auth()
+	{
+		static $_auth;
+		return $_auth ? $_auth: $_auth = new T_AUTH();
+	}
+
 	/** Get t_url single record.
 	 *
 	 * @created  2019-06-13
