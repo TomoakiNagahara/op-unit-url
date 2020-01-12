@@ -71,6 +71,15 @@ trait OP_UNIT_URL
 		return $_query ? $_query: $_query = new T_QUERY();
 	}
 
+	/** Form
+	 *
+	 * @created  2019-08-01
+	 * @return   T_FORM
+	 */
+	static function Form()
+	{
+		static $_form;
+		return $_form ? $_form: $_form = new T_FORM();
 	}
 
 	/** Get t_url single record.
