@@ -41,6 +41,7 @@ trait OP_UNIT_URL
 
 	/** Host
 	 *
+	 * @return T_HOST
 	 */
 	static function Host()
 	{
@@ -50,10 +51,13 @@ trait OP_UNIT_URL
 
 	/** Path
 	 *
+	 * @created  2019-08-01
+	 * @return   T_PATH
 	 */
 	static function Path()
 	{
-
+		static $_path;
+		return $_path ? $_path: $_path = new T_PATH();
 	}
 
 	/** Query
