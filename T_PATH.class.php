@@ -46,6 +46,21 @@ class T_PATH extends TABLE
 	 */
 	static function Ai($path)
 	{
+		//	...
+		if( strpos($path, '/./') ){
+			throw new \Exception("Relative path. ($path)");
+		};
+
+		//	...
+		if( strpos($path, '/../') ){
+			throw new \Exception("Relative path. ($path)");
+		};
+
+		//	...
+		if( preg_match('/[\'"#]/', $path) ){
+			throw new \Exception("Include fragment or Quote. ($path)");
+		};
+
 		return self::_Ai(self::table, 'path', $path);
 	}
 }
