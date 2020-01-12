@@ -296,18 +296,28 @@ trait OP_UNIT_URL
 
 	/** Update record of URL.
 	 *
+	 * <pre>
+	 * $ai = 1;
+	 * $update = [
+	 *   'field1' => $value1,
+	 *   'field2' => $value2,
+	 * ];
+	 * $io = self::Update($ai, $update);
+	 * </pre>
+	 *
 	 * @created  2019-06-13
 	 * @param    integer    $ai
 	 * @param    array      $update
 	 * @return   boolean
 	 */
-	static function Update($ai, $update)
+	static function Update($ai, $update, $where=[])
 	{
 		//	...
 		$config = [];
 		$config['table'] = 't_url';
 		$config['limit'] =  1;
 		$config['set']   = $update;
+		$config['where'] = $where;
 		$config['where'][] = "ai = $ai";
 
 		//	...
