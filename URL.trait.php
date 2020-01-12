@@ -291,13 +291,7 @@ trait OP_UNIT_URL
 		$record = self::Record($config);
 
 		//	...
-		$scheme = $record['https'] ? 'https': 'http';
-		$host   = $record['host'];
-		$path   = $record['path'];
-		$query  = $record['query'] ? '?'.$record['query']: null;
-
-		//	...
-		return "{$scheme}://{$host}{$path}{$query}";
+		return self::Build($record);
 	}
 
 	/** Update record of URL.
