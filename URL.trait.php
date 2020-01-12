@@ -113,8 +113,8 @@ trait OP_UNIT_URL
 	static function Records($config=[])
 	{
 		//	..
-		$config['table'] = 't_url.host <= t_host.ai, t_url.path <= t_path.ai, t_url.query <= t_query.ai';
-		$config['field'] = '*, t_url.ai as ai, t_url.timestamp as timestamp';
+		$config['table'] = 't_url.host <= t_host.ai, t_url.path <= t_path.ai, t_url.query <= t_query.ai, t_url.form <= t_form.ai, t_url.auth <= t_auth.ai';
+		$config['field'] = '*, t_url.ai as ai, t_url.score as score, t_url.timestamp as timestamp';
 
 		//	...
 		if( empty($config['limit']) ){
