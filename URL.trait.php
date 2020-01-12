@@ -241,16 +241,30 @@ trait OP_UNIT_URL
 	 *
 	 * @created 2019-06-11
 	 * @param   array      $parsed
+	 * @param   array      $conditions
 	 * @return  string     $url
 	 */
-	function Build($parsed)
+	function Build($parsed, $conditions=null)
 	{
 		//	...
-		$scheme =($parsed['scheme'] ?? null) ?? 'http';
-		$host   =($parsed['host']   ?? null);
-		$port   =($parsed['port']   ?? '80');
-		$path   =($parsed['path']   ?? '/' );
-		$query  =($parsed['query']  ?? null);
+		if( $parsed['auth'] ?? null ){
+			list($parsed['user'], $parsed['pass']) = explode(':', $parsed['auth']);
+		};
+
+		//	...
+		$scheme   = ($parsed['scheme']   ?? null) ?? 'http';
+		$host     = ($parsed['host']     ?? null);
+		$port     = ($parsed['port']     ?? '80');
+		$path     = ($parsed['path']     ?? '/' );
+		$query    = ($parsed['query']    ?? null);
+		$user     = ($parsed['user']     ?? null);
+		$pass     = ($parsed['pass']     ?? null);
+		/*
+		$fragment = ($parsed['fragment'] ?? null);
+		*/
+
+		//	...
+		$scheme = $scheme ? $scheme.':': null;
 
 		//	...
 		$port = ($port === '80') ? null: ':'.$port;
@@ -259,7 +273,10 @@ trait OP_UNIT_URL
 		$query = ($query) ? '?'.$query: null;
 
 		//	...
-		return "{$scheme}://{$host}{$port}{$path}{$query}";
+		$auth = $user ? "{$user}:{$pass}@": null;
+
+		//	...
+		return "{$scheme}//{$auth}{$host}{$port}{$path}{$query}";
 	}
 
 	/** Get URL.
