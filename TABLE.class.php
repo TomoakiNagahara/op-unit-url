@@ -37,12 +37,27 @@ class TABLE
 
 	/** Common Ai
 	 *
+	 * @created  2019-08-15
+	 * @param    string      $table
+	 * @param    string      $key
+	 * @param    string      $val
+	 * @param    array       $update
+	 * @throws  \Exception
+	 * @return   integer     $number
 	 */
-	static protected function _Ai($table, $key, $val)
+	static protected function _Ai($table, $key, $val, $update=[])
 	{
 		//	...
 		if( empty($val) ){
 			return 0;
+		};
+
+		//	...
+		if( $table === 't_path' ){
+			//	...
+			if( $key === 'path' and strpos($val, '/') !== 0 ){
+				throw new \Exception("This path is not document root path. ($val)");
+			};
 		};
 
 		//	...
@@ -64,6 +79,7 @@ class TABLE
 		unset($config['field']);
 		unset($config['limit']);
 		unset($config['where']);
+		$config['set']   = $update;
 		$config['set'][] = " hash = $hash ";
 		$config['set'][] = " $key = $val  ";
 
