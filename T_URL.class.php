@@ -90,17 +90,18 @@ class T_URL
 	/** Update
 	 *
 	 * @created  2019-06-14
+	 * @updated  2019-07-04
 	 * @param    integer    $ai
-	 * @param    string     $field
-	 * @param    string     $value
+	 * @param    array      $update
+	 * @return   integer    $number
 	 */
-	static function Update($ai, $field, $value)
+	static function Update($ai, $update)
 	{
 		//	...
 		$config = [];
 		$config['table']   = self::table;
 		$config['limit']   = 1;
-		$config['set'][]   = " $field = $value ";
+		$config['set']     = $update;
 		$config['where'][] = " ai = $ai ";
 		return self::DB()->Update($config);
 	}
