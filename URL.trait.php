@@ -62,9 +62,14 @@ trait OP_UNIT_URL
 
 	/** Query
 	 *
+	 * @created  2019-08-01
+	 * @return   T_QUERY
 	 */
 	static function Query()
 	{
+		static $_query;
+		return $_query ? $_query: $_query = new T_QUERY();
+	}
 
 	}
 
