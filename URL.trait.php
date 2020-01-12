@@ -208,15 +208,16 @@ trait OP_UNIT_URL
 	static function Parse($url)
 	{
 		//	...
-		if( strpos($url, '//')  === 0 ){
+		if( strpos($url, '/')  === 0 ){
 		}else if( strpos($url, 'http://')  === 0 ){
 		}else if( strpos($url, 'https://') === 0 ){
 		}else{
-			$url = '//' . $url;
+		//	throw new \Exception("Illegal URL format. ($url)");
+			$url = '//'.$url;
 		};
 
 		//	...
-		$parsed = [];
+		$parsed = parse_url($url);
 
 		//	...
 		foreach( ['scheme','host','path','port','query'] as $key ){
@@ -226,12 +227,14 @@ trait OP_UNIT_URL
 		};
 
 		//	...
-		if(!$parsed['path'] ){
+		if( $parsed['path'] ){
+			$parsed['path'] = str_replace('//', '/', $parsed['path']);
+		}else{
 			$parsed['path'] = '/';
 		};
 
 		//	...
-		return array_merge( $parsed, parse_url($url) );
+		return $parsed;
 	}
 
 	/** Build URL from parsed array.
