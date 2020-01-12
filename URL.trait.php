@@ -167,22 +167,16 @@ trait OP_UNIT_URL
 	static function Ai($url)
 	{
 		//	...
-		if( is_string($url) ){
-			$parsed = self::Parse($url);
-		}else if( is_array($url) ){
-			$parsed = $url;
-		}else{
-			$type = gettype($url);
-			throw new \Exception("This type is not support. ({$type})");
-		};
+		$parsed = is_string($url) ? self::Parse($url): $url;
 
 		//	...
-		$https = $parsed['scheme'] === 'https' ? 1: 0;
+		$scheme = $parsed['scheme'] ?? 'http';
 		$host  = T_HOST ::Ai($parsed['host'] );
 		$path  = T_PATH ::Ai($parsed['path']  ?? null);
 		$query = T_QUERY::Ai($parsed['query'] ?? null);
-		$form  = T_FORM ::Ai(null);
-		$ai    = T_URL  ::Ai($https, $host, $path, $query, $form);
+		$form  = T_FORM ::Ai($parsed['form']  ?? null);
+		$auth  = T_AUTH ::Ai($parsed['user']  ?? null, ($parsed['pass']  ?? null));
+		$ai    = T_URL  ::Ai($scheme, $host, $path, $query, $form, $auth);
 
 		//	...
 		return $ai;
