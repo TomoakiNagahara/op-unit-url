@@ -10,3 +10,4 @@
  */
 //	...
 require_once(__DIR__.'/autoloader.php');
+require_once(__DIR__.'/function/Hash.php');

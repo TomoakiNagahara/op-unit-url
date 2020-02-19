@@ -1,8 +1,8 @@
 <?php
 /**
- * unit-url:/T_QUERY.class.php
+ * unit-url:/T_AUTH.class.php
  *
- * @created   2019-06-14
+ * @created   2019-08-15
  * @version   1.0
  * @package   unit-url
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
@@ -11,7 +11,7 @@
 
 /** namespace
  *
- * @created   2019-06-14
+ * @created   2019-08-15
  */
 namespace OP\UNIT\URL;
 
@@ -19,44 +19,38 @@ namespace OP\UNIT\URL;
  *
  */
 use OP\OP_CORE;
-use function html_entity_decode;
 
-/** T_QUERY
+/** T_AUTH
  *
- * @created   2019-06-14
+ * @created   2019-08-15
  * @version   1.0
  * @package   unit-url
  * @author    Tomoaki Nagahara <tomoaki.nagahara@gmail.com>
  * @copyright Tomoaki Nagahara All right reserved.
  */
-class T_QUERY extends TABLE
+class T_AUTH extends TABLE
 {
 	/** trait.
 	 *
+	 * @created   2019-08-15
 	 */
 	use OP_CORE, OP_UNIT_URL_COMMON, OP_UNIT_URL_DB;
 
 	/** Table name.
 	 *
-	 * @var string
+	 * @created   2019-08-15
+	 * @var       string
 	 */
-	const table = 't_query';
+	const table = 't_auth';
 
 	/** Get ai.
 	 *
-	 * @param  string
-	 * @return integer
+	 * @created   2019-08-15
+	 * @param     string     $auth
+	 * @return    number     $ai
 	 */
-	static function Ai($query)
+	static function Ai($user, $pass)
 	{
-		//	...
-		$query = html_entity_decode($query, ENT_QUOTES);
-
-		//	...
-		if( strpos($query, '?') ){
-			D('Found to "?" ', $query);
-		}
-
-		return self::_Ai(self::table, 'query', $query);
+		return ($user and $pass) ? self::_Ai(self::table, 'auth', "{$user}:{$pass}"): null;
 	}
 }

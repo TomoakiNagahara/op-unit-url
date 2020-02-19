@@ -34,6 +34,7 @@ trait OP_UNIT_URL_DB
 {
 	/** Get DB
 	 *
+	 * @return \OP\IF_DATABASE
 	 */
 	static function DB()
 	{

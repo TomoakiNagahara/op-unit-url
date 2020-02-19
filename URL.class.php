@@ -36,4 +36,24 @@ class URL implements IF_UNIT
 	 *
 	 */
 	use OP_CORE, OP_UNIT, URL\OP_UNIT_URL;
+
+	/** Delete relative all record.
+	 *
+	 * @created   2020-02-12
+	 */
+	function Delete($value)
+	{
+		//	...
+		if( is_string($value) ){
+			$parse = $this->Parse($value);
+		}
+
+		//	...
+		if( is_numeric($value) ){
+			$parse = $this->URL()->Get($value);
+		}
+
+		//	...
+		D($parse);
+	}
 }

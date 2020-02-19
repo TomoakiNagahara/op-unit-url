@@ -46,6 +46,49 @@ class T_PATH extends TABLE
 	 */
 	static function Ai($path)
 	{
+		//	...
+		if( strpos($path, '/./') ){
+			$message = "Relative path. ($path)";
+			D($message);
+		//	throw new \Exception($message);
+		};
+
+		//	...
+		if( strpos($path, '/../') ){
+			$message = "Relative path. ($path)";
+			D($message);
+		//	throw new \Exception($message);
+		};
+
+		//	...
+		if( preg_match('/[\'"#]/', $path) ){
+			$message = "Path is include fragment or Quote. ($path)";
+			D($message);
+		//	throw new \Exception($message);
+		};
+
 		return self::_Ai(self::table, 'path', $path);
 	}
+
+	/** Get record by host ai.
+	 *
+	 * @created  2019-09-06
+	 * @param    integer     $host_ai
+	 * @return   array       $record
+	 */
+	/*
+	static function Host($host)
+	{
+		//	...
+		$config = [];
+		$config['table'] = 't_url.host <= t_host.ai, t_url.path <= t_path.ai, t_url.query <= t_query.ai';
+		$config['field'] = '*, t_url.ai as ai';
+		$config['limit'] = 1000;
+	//	$config['order'] = 't_path';
+		$config['where'][] = "t_url.host = $host";
+
+		//	...
+		return self::DB()->Select($config);
+	}
+	*/
 }
