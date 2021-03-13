@@ -41,7 +41,7 @@ class Selftest
 	static function Auto()
 	{
 		//	...
-		return \OP\Unit::Instantiate('Selftest')->Auto(__DIR__.'/selftest/config.php');
+		return Unit('Selftest')->Auto( self::Config() );
 	}
 
 	static function Config()

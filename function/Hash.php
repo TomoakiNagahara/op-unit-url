@@ -23,5 +23,8 @@ namespace OP\UNIT\URL;
  */
 function Hash($str)
 {
-	return substr(md5($str), 0, 10);
+	$str  = trim($str);
+	$str  = md5( $str);
+	$hash = substr($str, 0, 10);
+	return $hash;
 }

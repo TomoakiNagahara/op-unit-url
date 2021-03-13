@@ -53,27 +53,36 @@ class TABLE
 		};
 
 		//	...
-		if( $table === 't_path' ){
-			//	...
-			if( $key === 'path' and strpos($val, '/') !== 0 ){
-				throw new \Exception("This path is not document root path. ($val)");
-			};
-		};
+		$config = [];
 
 		//	...
 		$hash = self::Hash($val);
 
 		//	...
-		$config = [];
+		switch( $table ){
+			case 't_scheme':
+				unset($hash);
+				$config['where']['scheme'] = $val;
+				break;
+
+			case 't_path':
+				//	...
+				if( $key === 'path' and strpos($val, '/') !== 0 ){
+					throw new \Exception("This path is not document root path. ($val)");
+				};
+				break;
+		};
+
+		//	...
 		$config['table'] = $table;
 		$config['field'] = 'ai';
 		$config['limit'] = 1;
-		$config['where']['hash'] = $hash;
-		$config['cache'] = 60;
+		$config['cache'] = 60 * 60 * 24 * 1;
+		if( $hash ?? null ){ $config['where']['hash'] = $hash; }
 
 		//	...
-		if( $record = self::DB()->Select($config) ){
-			return $record['ai'];
+		if( $ai = self::DB()->Select($config) ){
+			return $ai;
 		}
 
 		//	...
@@ -81,8 +90,14 @@ class TABLE
 		unset($config['limit']);
 		unset($config['where']);
 		$config['set']   = $update;
-		$config['set'][] = " hash = $hash ";
 		$config['set'][] = " $key = $val  ";
+		if( $hash ?? null ){ $config['set'][] = " hash = $hash "; }
+
+		//	...
+		if( $table === 't_host' ){
+			$created = gmdate(_OP_DATE_TIME_);
+			$config['set'][] = " created = {$created} ";
+		}
 
 		//	...
 		return self::DB()->Insert($config);

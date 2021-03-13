@@ -19,6 +19,7 @@ namespace OP\UNIT\URL;
  *
  */
 use OP\OP_CORE;
+use OP\Env;
 
 /** T_URL
  *
@@ -45,45 +46,71 @@ class T_URL extends TABLE
 	 *
 	 * @created  2019-06-14
 	 */
-	static function Ai($scheme, $host, $path, $query, $form, $auth, $referer)
+	static function Ai($scheme, $host, $port, $path, $query, $form, $auth, $referer=null)
 	{
 		//	...
 		$config = [];
 		$config['table'] = self::table;
-		$config['field'] = 'ai';
+		$config['field'] = 'ai, scheme';
 		$config['limit'] = 1;
-	//	$config['where']['scheme']= $scheme;
-		$config['where']['host' ] = $host ;
-		$config['where']['path' ] = $path ;
-		$config['where']['query'] = $query;
-		$config['where']['form' ] = $form ;
+		$config['order'] = 'created';
+		$config['cache'] = Env::isAdmin() ? 1: 60 * 60 * 24 * 1;
 
 		//	...
-		if( $auth ){
-			$config['where']['auth' ] = $auth ;
-		};
+		$where = [];
+		$where['host' ]  = $host  ;
+		$where['port']   = $port  ;
+		$where['path' ]  = $path  ;
+		$where['query']  = $query ;
+		$where['form' ]  = $form  ;
+		/*
+		//	...
+		if( $scheme ){ $where['scheme'] = $scheme; }
+		if( $auth   ){ $where['auth']   = $auth  ; }
+		//	...
+		*/
+		$config['where'] = $where;
 
 		//	...
 		if( $record = self::DB()->Select($config) ){
+
+			/* The scheme does not update automatically.
+			 * Please update explicitly with 301.
+			if( $scheme ){
+				self::Update($record['ai'], ['scheme'=>$scheme]);
+			}
+			*/
+
+			//	...
 			return $record['ai'];
 		};
 
 		//	Insert
-		$config['set'] = $config['where'] ;
-		$config['set']['scheme'] = $scheme;
-		$config['set']['auth' ]  = $auth  ;
-		$config['set']['referer']= $referer;
-		$config['set']['created']= date(_OP_DATE_TIME_);
-
-		//	Update if duplicate.
-		$config['update']['auth'] = $auth ;
+		$config = [];
+		$config['table'] = self::table;
+		$config['set']   = $where;
+		$config['set']['created'] = gmdate(_OP_DATE_TIME_);
+		if($referer){
+			$config['set']['referer'] = $referer;
+		}
 
 		//	...
-		unset($config['where']);
-		unset($config['limit']);
-		unset($config['field']);
+		if( $scheme === 'https' ){
+			$config['set']['scheme']    = $scheme;
+			$config['update']['scheme'] = $scheme;
+		}
 
+		//	...
+		if( $port ){
+			$config['set']['port']    = $port;
+			$config['update']['port'] = $port;
+		}
 
+		//	...
+		if( $auth ){
+			$config['set']['auth']    = $auth;
+			$config['update']['auth'] = $auth;
+		}
 
 		//	...
 		return self::DB()->Insert($config);

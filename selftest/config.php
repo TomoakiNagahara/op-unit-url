@@ -23,21 +23,21 @@ $config = [
 	'user'     => 'url',
 	'password' => 'url',
 	'charset'  => 'utf8',
-	'database' => 'onepiece',
+	'database' => 'op',
 ];
 
 //	...
 $config = array_merge( $config, Env::Get('url')['database'] ?? [] );
 
 //	...
-$prod = $config['prod'];
-$host = $config['host'];
-$port = $config['port'];
-$user = $config['user'];
-$pass = $config['password'];
-$char = $config['charset'];
+$prod     = $config['prod'];
+$host     = $config['host'];
+$port     = $config['port'];
+$user     = $config['user'];
+$password = $config['password'];
 $database = $config['database'];
-$collate = null;
+$charset  = $config['charset'];
+$collate  = null;
 
 //  Instantiate self-test configuration generator.
 $configer = \OP\UNIT\Selftest::Configer();
@@ -53,14 +53,14 @@ $configer->DSN([
 $configer->User([
 	'host'     => $host,
 	'name'     => $user,
-	'password' => $pass,
-	'charset'  => $char,
+	'password' => $password,
+	'charset'  => $charset,
 ]);
 
 //  Database configuration.
 $configer->Database([
 	'name'     => $database,
-	'charset'  => $char,
+	'charset'  => $charset,
 	'collate'  => $collate,
 ]);
 
@@ -74,6 +74,7 @@ $configer->Privilege([
 ]);
 
 //	...
+include(__DIR__.'/t_scheme.php');
 include(__DIR__.'/t_host.php' );
 include(__DIR__.'/t_path.php' );
 include(__DIR__.'/t_query.php');

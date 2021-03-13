@@ -46,6 +46,12 @@ class T_FORM extends TABLE
 	 */
 	static function Ai($form)
 	{
+		//	...
+		if( is_array($form) ){
+			$form = http_build_query($form);
+		}
+
+		//	...
 		return self::_Ai(self::table, 'form', $form);
 	}
 }

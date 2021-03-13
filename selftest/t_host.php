@@ -28,9 +28,10 @@ $configer->Column( 'ai'        , 'bigint'   ,   11, false, null , 'Auto incremen
 $configer->Column( 'score'     , 'bigint'   ,   11, false,   '0', 'Score.'            );
 $configer->Column( 'hash'      , 'char'     ,   10, false, null , 'Hash by host name.');
 $configer->Column( 'host'      , 'text'     , null, false, null , 'Host name.'        );
+$configer->Column( 'flag'      , 'set'      , null,  true, null , 'flags.'            ,['length'=>'https']);
 $configer->Column( 'created'   , 'datetime' , null,  true, null , 'Created date time.');
 $configer->Column( 'timestamp' , 'timestamp', null, false, null , 'Timestamp.'        );
 
 //	...
-$configer->Index(  'ai',     'ai',   'ai', 'Auto increment id.');
-$configer->Index('hash', 'unique', 'hash', 'Hash by host name.');
+$configer->Index('PRIMARY',     'ai',   'ai', 'Auto increment id.');
+$configer->Index('hash'   , 'unique', 'hash', 'Hash by host name.');

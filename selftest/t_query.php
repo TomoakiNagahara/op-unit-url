@@ -30,5 +30,5 @@ $configer->Column( 'query'     , 'text'     , null, false, null, 'query value.' 
 $configer->Column( 'timestamp' , 'timestamp', null, false, null, 'Timestamp.'        );
 
 //	...
-$configer->Index(  'ai',     'ai',   'ai', 'auto increment id.'  );
-$configer->Index('hash', 'unique', 'hash', 'Hash by query value.');
+$configer->Index('PRIMARY',     'ai',   'ai', 'auto increment id.'  );
+$configer->Index('hash'   , 'unique', 'hash', 'Hash by query value.');

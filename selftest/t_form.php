@@ -30,5 +30,5 @@ $configer->Column( 'form'      , 'text'     , null, false, null, 'Form value.'  
 $configer->Column( 'timestamp' , 'timestamp', null, false, null, 'Timestamp.'        );
 
 //	...
-$configer->Index(  'ai',     'ai',   'ai', 'auto increment id.' );
-$configer->Index('hash', 'unique', 'hash', 'Hash by form value.');
+$configer->Index('PRIMARY',     'ai',   'ai', 'auto increment id.' );
+$configer->Index('hash'   , 'unique', 'hash', 'Hash by form value.');

@@ -20,7 +20,7 @@ spl_autoload_register( function($name)
 	$temp = explode('\\', $name);
 
 	//	...
-	switch( array_pop($temp) ){
+	switch( $key = array_pop($temp) ){
 		case 'URL':
 			$path  = __DIR__."/URL.class.php";
 			break;
@@ -43,6 +43,10 @@ spl_autoload_register( function($name)
 
 		case 'T_URL':
 			$path  = __DIR__."/T_URL.class.php";
+			break;
+
+		case 'T_SCHEME':
+			$path  = __DIR__."/T_SCHEME.class.php";
 			break;
 
 		case 'T_HOST':
@@ -70,6 +74,7 @@ spl_autoload_register( function($name)
 			break;
 
 		default:
+			throw new Exception("Not defined this class name. ($name, $key)");
 	};
 
 	//	...

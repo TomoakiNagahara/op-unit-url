@@ -20,7 +20,7 @@ namespace OP\UNIT\URL;
  */
 use OP\OP_CORE;
 use OP\Env;
-use OP\Notice;
+use function OP\Notice;
 
 /** T_HOST
  *
@@ -51,16 +51,9 @@ class T_HOST extends TABLE
 	static function Ai($host)
 	{
 		//	...
-		if(!gethostbynamel($host) ){
-			//	...
-			$message = "This hostname could not be resolved. ($host)";
-
-			//	...
-			if( Env::isLocalhost() ){
-				D( $message );
-			}else{
-				Notice::Set($message);
-			}
+		if(!Env::isLocalhost() and !gethostbynamel($host) ){
+			Notice("This hostname could not be resolved. ($host)");
+			return false;
 		}
 
 		//	...
@@ -99,4 +92,75 @@ class T_HOST extends TABLE
 		$config['where'][] = " ai = $ai ";
 		return self::DB()->Update($config);
 	}
+
+	/** Delete
+	 *
+	 * @param    integer     $ai
+	 * @return   boolean     $io
+	 */
+	static function Delete($ai)
+	{
+		return self::_Delete(self::table, $ai);
+	}
+
+	/** Change https flag.
+	 *
+	 * @param     mixed        $host
+	 * @param     bool         $io
+	 */
+	/*
+	static function Https($host, bool $io):void
+	{
+		//	...
+		$table = self::table;
+
+		//	...
+		if( is_numeric($host) ){
+			$flag = self::DB()->QQL(" flag <- {$table}.ai   = $host ");
+		}else{
+			$hash = Hash($host);
+			$flag = self::DB()->QQL(" flag <- {$table}.hash = $hash ");
+		}
+
+		//	...
+		D($flag);
+
+		//	...
+		$flag = explode(',', $flag);
+
+		//	...
+		if( $io ){
+			$flag[] = 'https';
+		}else{
+			D();
+		}
+
+		//	...
+		self::Flag($host, $flag);
+	}
+	*/
+
+	/** Change flag.
+	 *
+	 * @param     mixed        $host
+	 * @param     mixed        $flag
+	 */
+	/*
+	static function Flag($host, $flag):void
+	{
+
+	}
+	*/
+
+	/** Is https
+	 *
+	 * @param     mixed        $host
+	 * @return    bool         $io
+	 */
+	/*
+	static function isHttps($host):bool
+	{
+
+	}
+	*/
 }

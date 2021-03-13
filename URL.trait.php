@@ -19,6 +19,7 @@ namespace OP\UNIT\URL;
  *
  */
 use function OP\Html;
+use function OP\Encode;
 
 /** URL
  *
@@ -44,6 +45,11 @@ trait OP_UNIT_URL
 		return $_unit ? $_unit : $_unit = new Selftest();
 	}
 
+	static function Hash($str)
+	{
+		return Hash($str);
+	}
+
 	/** URL
 	 *
 	 * @return T_URL
@@ -52,6 +58,16 @@ trait OP_UNIT_URL
 	{
 		static $_url;
 		return $_url ? $_url : $_url = new T_URL();
+	}
+
+	/** Scheme
+	 *
+	 * @return T_SCHEME
+	 */
+	static function Scheme()
+	{
+		static $_scheme;
+		return $_scheme ? $_scheme : $_scheme = new T_SCHEME();
 	}
 
 	/** Host
@@ -132,7 +148,12 @@ trait OP_UNIT_URL
 	static function Records($config=[])
 	{
 		//	..
-		$config['table'] = 't_url.host <= t_host.ai, t_url.path <= t_path.ai, t_url.query <= t_query.ai, t_url.form <= t_form.ai, t_url.auth <= t_auth.ai';
+		$config['table'][] = 't_url.scheme <= t_scheme.ai';
+		$config['table'][] = 't_url.host   <= t_host.ai  ';
+		$config['table'][] = 't_url.path   <= t_path.ai  ';
+		$config['table'][] = 't_url.query  <= t_query.ai ';
+		$config['table'][] = 't_url.form   <= t_form.ai  ';
+		$config['table'][] = 't_url.auth   <= t_auth.ai  ';
 		$config['field'] = '*, t_url.ai as ai, t_url.score as score, t_url.timestamp as timestamp';
 
 		//	...
@@ -153,30 +174,94 @@ trait OP_UNIT_URL
 	 *
 	 * @created  2019-06-13
 	 * @param    string|array  $url
+	 * @param    integer       $score
 	 * @return   integer       $ai
 	 */
-	static function Register($parsed)
+	static function Register($parsed, $score=1)
 	{
-		/*
 		//	...
 		if( is_string($parsed) ){
 			$parsed = self::Parse($parsed);
 		};
-		*/
+
+		//	...
+		if( empty($parsed['path']) ){
+			$parsed['path'] = '/';
+		}
+
+		//	...
+		if( $parsed['path'][0] !== '/' ){
+			throw new \Exception("Illigal path. ({$parsed['path']})");
+		}
 
 		//	Register Host, Path, Query, Form.
 		$ai = self::Ai($parsed);
 
-		//	...
+		//	Increment score.
 		$config = [];
 		$config['table']   = 't_url';
 		$config['limit']   = 1;
-		$config['set'][]   = " score + 1 ";
+		$config['set'][]   = " score + $score ";
 		$config['where'][] = " ai = $ai  ";
 		self::DB()->Update($config);
 
 		//	...
 		return $ai;
+	}
+
+	/** Get URL from Ai.
+	 *
+	 * @created   2021-03-13
+	 * @param     int          $ai
+	 * @return    string
+	 */
+	static function AiToURL(int $ai)
+	{
+		//	...
+		$ai = (int)$ai;
+
+		//	...
+		$sql = "SELECT
+		t_url   .`ai`        AS 'ai'       ,
+		t_url   .`score`     AS 'score'    ,
+		t_url   .`http_status_code` AS 'status',
+	--	t_url   .`scheme`    AS 'ai_scheme',
+		t_scheme.`scheme`    AS 'scheme'   ,
+	--	t_host  .`ai`        AS 'ai_host'  ,
+		t_host  .`host`      AS 'host'     ,
+	--	t_path  .`ai`        AS 'ai_path'  ,
+		t_path  .`path`      AS 'path'     ,
+		t_query .`ai`        AS 'ai_query' ,
+		t_query .`query`     AS 'query'    ,
+		t_form  .`form`      AS 'form'     ,
+		t_url   .`port`      AS 'port'     ,
+		t_auth  .`auth`      AS 'auth'     ,
+		t_url   .`referer`   AS 'referer'  ,
+		t_url   .`transfer`  AS 'transfer' ,
+		t_url   .`delete`    AS 'delete'   ,
+		t_url   .`crawled`   AS 'crawled'  ,
+		t_url   .`created`   AS 'created'  ,
+		t_url   .`timestamp` AS 'timestamp'
+
+		FROM
+		`t_url`
+		LEFT JOIN `t_scheme` ON `t_url`.`scheme` = `t_scheme`.`ai`
+		LEFT JOIN `t_host`   ON `t_url`.`host`   = `t_host`  .`ai`
+		LEFT JOIN `t_path`   ON `t_url`.`path`   = `t_path`  .`ai`
+		LEFT JOIN `t_query`  ON `t_url`.`query`  = `t_query` .`ai`
+		LEFT JOIN `t_form`   ON `t_url`.`form`   = `t_form`  .`ai`
+		LEFT JOIN `t_auth`   ON `t_url`.`auth`   = `t_auth`  .`ai`
+
+		WHERE t_url.ai = '$ai'
+		ORDER BY t_url.created DESC
+		 LIMIT 1 ";
+
+		/* @var $db \OP\UNIT\Database */
+		$db = self::DB();
+		$record = $db->SQL($sql, 'select');
+
+		//	...
+		return self::Build($record);
 	}
 
 	/** Get auto increment number.
@@ -192,20 +277,58 @@ trait OP_UNIT_URL
 		$referer = $parsed['referer'] ?? null;
 
 		//	...
-		$scheme = $parsed['scheme'] ?? 'http';
-		$host   = T_HOST::Ai($parsed['host']);
-		$path   = T_PATH::Ai($parsed['path']);
-		$query  = isset($parsed['query']) ? T_QUERY::Ai($parsed['query']) : null;
-		$form   = isset($parsed['form' ]) ? T_FORM ::Ai($parsed['form' ]) : null;
+		$scheme = isset($parsed['scheme']) ? T_SCHEME::Ai($parsed['scheme']) : 0;
+		$host   = isset($parsed['host'])   ? T_HOST  ::Ai($parsed['host'  ]) : 0;
+		$path   = isset($parsed['path'])   ? T_PATH  ::Ai($parsed['path'  ]) : 0;
+		$query  = isset($parsed['query'])  ? T_QUERY ::Ai($parsed['query' ]) : 0;
+		$form   = isset($parsed['form' ])  ? T_FORM  ::Ai($parsed['form'  ]) : 0;
+		$port   = isset($parsed['port'])   ?         (int)$parsed['port'  ]  : 0;
+
+		//	Auth
 		if( isset($parsed['user']) and isset($parsed['pass']) ){
 			$auth = T_AUTH::Ai($parsed['user'], $parsed['pass']);
 		}else{
 			$auth = null;
 		}
-		$ai    = T_URL::Ai($scheme, $host, $path, $query, $form, $auth, $referer);
+
+		//	...
+		if(!$ai = T_URL::Ai($scheme, $host, $port, $path, $query, $form, $auth, $referer) ){
+			throw new \Exception("Ai is empty. \n$scheme, $host, $path, $query, $form, $auth, $referer");
+		}
 
 		//	...
 		return $ai;
+	}
+
+	/** Remove relative path.
+	 *
+	 * @param     string       $path
+	 * @return    string       $path
+	 */
+	static function RemoveRelativePath($path)
+	{
+		//	...
+		$path = preg_replace('|/?./|', '/', $path);
+
+		//	...
+		$temp = explode('/', $path);
+
+		//	...
+		for($i=0, $c=count($temp); $i<$c; $i++ ){
+			//	...
+			if( $temp[$i] === '..' ){
+				$temp[$i]  =  '';
+				if( $i > 0 ){
+					$temp[$i-1] = '';
+				}
+			}
+		}
+
+		//	...
+		$path = join('/', $temp);
+
+		//	...
+		return $path;
 	}
 
 	/** Update to http_status_code.
@@ -234,6 +357,9 @@ trait OP_UNIT_URL
 	static function Parse($url)
 	{
 		//	...
+		$url = Encode($url);
+
+		//	...
 		if( strpos($url, '/')  === 0 ){
 		}else if( strpos($url, 'http://')  === 0 ){
 		}else if( strpos($url, 'https://') === 0 ){
@@ -252,18 +378,20 @@ trait OP_UNIT_URL
 			};
 		};
 
-		//	Form
-		if(($parsed['query'][0] ?? null) === '!' ){
-			$parsed['form']  = substr($parsed['query'], 1);
-			$parsed['query'] = null;
-		}
-
 		//	...
-		if( $parsed['path'] ){
-			$parsed['path'] = str_replace('//', '/', $parsed['path']);
-		}else{
+		if( empty($parsed['path']) ){
 			$parsed['path'] = '/';
-		};
+		}else{
+			//	Speed up reference.
+			$path = $parsed['path'];
+
+			//	Search duplicate slash.
+			//	Remove the cost of initializing regular expressions.
+			if( strpos($path, '//') !== false ){
+				//	Remove duplicate slashes.
+				$parsed['path'] = preg_replace('|/+|', '/', $path);
+			}
+		}
 
 		//	...
 		return $parsed;
@@ -283,12 +411,7 @@ trait OP_UNIT_URL
 			list($parsed['user'], $parsed['pass']) = explode(':', $parsed['auth']);
 		};
 
-		//	...
-		if( empty($parsed['scheme']) ){
-			$parsed['scheme'] = 'http';
-		}
-
-		//	...
+		//	Overwrite parsed by condition.
 		if( $condition ){
 			$parsed = array_merge($parsed, $condition);
 		}
@@ -296,7 +419,7 @@ trait OP_UNIT_URL
 		//	...
 		$scheme   = ($parsed['scheme']   ?? null);
 		$host     = ($parsed['host']     ?? null);
-		$port     = ($parsed['port']     ?? '80');
+		$port     = ($parsed['port']     ?? null);
 		$path     = ($parsed['path']     ?? '/' );
 		$query    = ($parsed['query']    ?? null);
 		$user     = ($parsed['user']     ?? null);
@@ -305,11 +428,35 @@ trait OP_UNIT_URL
 		$fragment = ($parsed['fragment'] ?? null);
 		*/
 
-		//	...
-		$scheme = $scheme ? $scheme.':': null;
+		//	If set https flag.
+		if(!$scheme and isset($parsed['flag']) and strpos($parsed['flag'], 'https') !== false ){
+			$scheme = 'https';
+		}
+
+		//	Add colon.
+		if( $scheme ){
+			$scheme = $scheme . ':';
+		}
 
 		//	...
-		$port = ($port === '80') ? null: ':'.$port;
+		if( $port ){
+			/*
+			//	...
+			require_once(__DIR__.'/function/GetPortNumberAtScheme.php');
+
+			//	...
+			if( $scheme ){
+				if( $port != GetPortNumberAtScheme($scheme) ){
+					$port  = ":{$port}";
+				}
+			}else{
+				$port = ":{$port}";
+			}
+			*/
+			$port = ":{$port}";
+		}else{
+			$port = null;
+		}
 
 		//	...
 		$query = ($query) ? '?'.$query: null;
@@ -321,7 +468,7 @@ trait OP_UNIT_URL
 		return "{$scheme}//{$auth}{$host}{$port}{$path}{$query}";
 	}
 
-	/** Get URL.
+	/** Get URL from ai.
 	 *
 	 * @created   2019-06-13
 	 * @param     integer      $where
@@ -336,7 +483,13 @@ trait OP_UNIT_URL
 		$record = self::Record($config);
 
 		//	...
-		return self::Build($record, $condition);
+		if(!$record['host'] ){
+			D('Empty host', $record);
+			return false;
+		}
+
+		//	...
+		return $record ? self::Build($record, $condition): null;
 	}
 
 	/** Update record of URL.
@@ -373,7 +526,7 @@ trait OP_UNIT_URL
 	 *
 	 * @created   2019-09-10
 	 * @modified  2020-02-12
-	 * @param     integer|string
+	 * @param     integer|string  $ai or $url or $parsed
 	 * @return    boolean
 	 */
 	static function Delete($value)
@@ -400,8 +553,9 @@ trait OP_UNIT_URL
 		$config = [];
 		$config['table'] = T_HOST::table;
 		$config['limit'] = 1;
+		$config['field'] = 'ai';
 		$config['where']['hash'] = Hash($parsed['host'] );
-		if(!$ai_host = self::Host()->DB()->Select($config)['ai'] ?? null ){
+		if(!$ai_host = self::Host()->DB()->Select($config) ){
 			D("Host was not exists. ({$parsed['host']})", $config);
 			return;
 		}

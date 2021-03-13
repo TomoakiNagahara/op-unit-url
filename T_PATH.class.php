@@ -19,6 +19,7 @@ namespace OP\UNIT\URL;
  *
  */
 use OP\OP_CORE;
+use OP\Notice;
 
 /** T_PATH
  *
@@ -47,48 +48,91 @@ class T_PATH extends TABLE
 	static function Ai($path)
 	{
 		//	...
+		if( empty($path) ){
+			$path = '/';
+		}
+
+		//	...
+		if( strpos($path, '/') !== 0 ){
+			Notice::Set("path is illegal. ($path)");
+		}
+
+		//	...
+		if( strpos($path, '/./') or strpos($path, '/../') ){
+			$path = self::RemoveRelativePath($path);
+		}
+
+		//	...
 		if( strpos($path, '/./') ){
 			$message = "Relative path. ($path)";
-			D($message);
-		//	throw new \Exception($message);
+			Notice::Set($message);
 		};
 
 		//	...
 		if( strpos($path, '/../') ){
 			$message = "Relative path. ($path)";
-			D($message);
-		//	throw new \Exception($message);
+			Notice::Set($message);
 		};
 
 		//	...
 		if( preg_match('/[\'"#]/', $path) ){
 			$message = "Path is include fragment or Quote. ($path)";
 			D($message);
+
+			/** Maybe JavaScript
+			 *  https://local.debian.com/crawling/ai=1085
+			 *  https://local.debian.com/gac.icann.org/topics/
+			 *
+			 *  href='"+myObj.data[i][1]+"'
+			 */
+
+		//	Notice::Set($message);
 		//	throw new \Exception($message);
+			return 0;
 		};
 
+		//	...
+		if( strpos($path, '&quot;') ){
+			$message = "&quot; was found. ($path)";
+			D($message);
+		//	throw new \Exception($message);
+			return 0;
+		}
+
+		//	...
 		return self::_Ai(self::table, 'path', $path);
 	}
 
-	/** Get record by host ai.
+	/** Remove relative path.
 	 *
-	 * @created  2019-09-06
-	 * @param    integer     $host_ai
-	 * @return   array       $record
+	 * @created   2019-09-06
+	 * @param     string       $path
+	 * @return    string       $path
 	 */
-	/*
-	static function Host($host)
+	static function RemoveRelativePath(string $path):string
 	{
 		//	...
-		$config = [];
-		$config['table'] = 't_url.host <= t_host.ai, t_url.path <= t_path.ai, t_url.query <= t_query.ai';
-		$config['field'] = '*, t_url.ai as ai';
-		$config['limit'] = 1000;
-	//	$config['order'] = 't_path';
-		$config['where'][] = "t_url.host = $host";
+		$dirs = [];
 
 		//	...
-		return self::DB()->Select($config);
+		foreach( explode('/', $path) as $dir ){
+
+			//	...
+			if( $dir === '.' ){
+				continue;
+			}
+
+			//	...
+			if( $dir === '..' ){
+				array_pop($dirs);
+				continue;
+			}
+
+			//	...
+			$dirs[] = $dir;
+		}
+
+		//	...
+		return join('/', $dirs);
 	}
-	*/
 }

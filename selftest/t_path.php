@@ -30,5 +30,5 @@ $configer->Column( 'path'      , 'text'     , null, false, null, 'path name.'   
 $configer->Column( 'timestamp' , 'timestamp', null, false, null, 'Timestamp.'        );
 
 //	...
-$configer->Index(  'ai',     'ai',   'ai', 'auto increment id.' );
-$configer->Index('hash', 'unique', 'hash', 'Hash by path value.');
+$configer->Index('PRIMARY',     'ai',   'ai', 'auto increment id.' );
+$configer->Index('hash'   , 'unique', 'hash', 'Hash by path value.');

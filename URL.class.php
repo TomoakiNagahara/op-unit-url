@@ -21,6 +21,7 @@ namespace OP\UNIT;
 use OP\OP_CORE;
 use OP\OP_UNIT;
 use OP\IF_UNIT;
+use OP\UNIT\URL\Selftest;
 
 /** URL
  *
@@ -55,5 +56,14 @@ class URL implements IF_UNIT
 
 		//	...
 		D($parse);
+	}
+
+	/** Selftest
+	 *
+	 */
+	function Selftest()
+	{
+		require_once(__DIR__.'/Selftest.class.php');
+		return new Selftest();
 	}
 }

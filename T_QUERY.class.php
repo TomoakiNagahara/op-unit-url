@@ -50,13 +50,10 @@ class T_QUERY extends TABLE
 	static function Ai($query)
 	{
 		//	...
+		$query = urldecode($query);
 		$query = html_entity_decode($query, ENT_QUOTES);
 
 		//	...
-		if( strpos($query, '?') ){
-			D('Found to "?" ', $query);
-		}
-
 		return self::_Ai(self::table, 'query', $query);
 	}
 }

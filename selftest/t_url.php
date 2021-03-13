@@ -23,33 +23,39 @@ $configer->Set('table', [
 	'comment' => '',
 ]);
 
-//	...
+/**
+ * Crawled column default value must be null.
+ * That's because to make sure to search for null at least once to crawl.
+ */
 $configer->Column( 'ai'              , 'bigint'   ,   11, false,   null, 'Auto increment id.',['unsigned'=>true] );
-$configer->Column( 'score'           , 'bigint'   ,   11,  true,    '0', 'Score.'            ,['unsigned'=>false]);
+$configer->Column( 'score'           , 'bigint'   ,   11, false,    '0', 'Score.'            ,['unsigned'=>false]);
 $configer->Column( 'headless'        , 'tinyint'  ,    4,  true,   null, 'Headless flag.'    ,['unsigned'=>true] );
-$configer->Column( 'http_status_code', 'tinyint'  ,    4,  true,   null, 'http status code.' ,['unsigned'=>true] );
-$configer->Column( 'scheme'          , 'enum'     , null, false, 'http', 'URL scheme.'       ,['length'  =>'http,https']);
-$configer->Column( 'host'            , 'bigint'   ,   11, false,   null, 'Host name.'        ,['unsigned'=>true] );
-$configer->Column( 'path'            , 'bigint'   ,   11, false,   null, 'Path name.'        ,['unsigned'=>true] );
-$configer->Column( 'query'           , 'bigint'   ,   11,  true,   null, 'Query value.'      ,['unsigned'=>true] );
-$configer->Column( 'form'            , 'bigint'   ,   11,  true,   null, 'Form value.'       ,['unsigned'=>true] );
+$configer->Column( 'http_status_code', 'int'      ,   11,  true,   null, 'http status code.' ,['unsigned'=>true] );
+$configer->Column( 'scheme'          , 'int'      ,   11, false,      0, 'URL scheme.'       ,['unsigned'=>true] );
+$configer->Column( 'host'            , 'bigint'   ,   11, false,      0, 'Host name.'        ,['unsigned'=>true] );
+$configer->Column( 'port'            , 'int'      ,   11, false,      0, 'Host name.'        ,['unsigned'=>true] );
+$configer->Column( 'path'            , 'bigint'   ,   11, false,      0, 'Path name.'        ,['unsigned'=>true] );
+$configer->Column( 'query'           , 'bigint'   ,   11, false,      0, 'Query value.'      ,['unsigned'=>true] );
+$configer->Column( 'form'            , 'bigint'   ,   11, false,      0, 'Form value.'       ,['unsigned'=>true] );
 $configer->Column( 'auth'            , 'bigint'   ,   11,  true,   null, 'Auth value.'       ,['unsigned'=>true] );
 $configer->Column( 'referer'         , 'bigint'   ,   11,  true,   null, 'Referer ai.'       ,['unsigned'=>true] );
 $configer->Column( 'transfer'        , 'bigint'   ,   11,  true,   null, 'Transfer ai.'      ,['unsigned'=>true] );
-$configer->Column( 'delete'          , 'tinyint'  ,    4, false,   null, 'Delete flag.'      ,['unsigned'=>true] );
+$configer->Column( 'delete'          , 'tinyint'  ,    4,  true,   null, 'Delete flag.'      ,['unsigned'=>true] );
+/*
+$configer->Column( 'flags'           , 'set'      , null,  true,   null, 'Flags.',['length'=>'headless, delete']);
+*/
 $configer->Column( 'crawled'         , 'datetime' , null,  true,   null, 'Crawled data time.');
 $configer->Column( 'created'         , 'datetime' , null,  true,   null, 'Created data time.');
 $configer->Column( 'timestamp'       , 'timestamp', null, false,   null, 'Timestamp.');
 
-//	...
-$configer->Index( 'ai' ,     'ai', 'ai'                              , 'Auto increment id.' );
-$configer->Index( 'URL', 'unique', 'host, path, query, form, delete ', 'Unique ids.'        );
-
-//	Only for delete index.
+//	MySQL does not include NULL in UNIQUE INDEX.
+//	Conversely, If NULL is used, UNIQUE INDEX can be duplicated.
+$configer->Index('PRIMARY',     'ai', 'ai', 'Auto increment id.'           );
 /*
-$configer->Index( 'host' , 'multi', 'host , deleted', 'For delete index.' );
-$configer->Index( 'path' , 'multi', 'path , deleted', 'For delete index.' );
-$configer->Index( 'query', 'multi', 'query, deleted', 'For delete index.' );
-$configer->Index( 'form' , 'multi', 'form , deleted', 'For delete index.' );
-$configer->Index( 'auth' , 'multi', 'auth , deleted', 'For delete index.' );
+$configer->Index('SHP'    , 'unique', 'scheme, host, path             ', '');
+$configer->Index('SHPQ'   , 'unique', 'scheme, host, path, query      ', '');
+$configer->Index('SHPQA'  , 'unique', 'scheme, host, path, query, auth', '');
+$configer->Index('SHPQF'  , 'unique', 'scheme, host, path, query, form', '');
 */
+$configer->Index('SHPQFP' , 'unique', 'scheme, host, path, query, form, port', '');
+$configer->Index('score'  ,  'index', 'score', '');
